@@ -1,81 +1,47 @@
-import React, { useEffect, useState } from 'react';
-import Navbar from './Navbar';
-import Home from './Home';
-import CustomerLogin from './CustomerLogin';
-import StaffLogin from './StaffLogin';
-import RegisterCustomer from './RegisterCustomer';
-import BookingForm from './BookingForm';
-import AdminDashboard from './AdminDashboard';
-import { getUser, clearUser } from './utils/auth';
-
-export default function App() {
-  const [user, setUser] = useState(null);
-  const [page, setPage] = useState('home'); // home, loginCustomer, loginStaff, register, dashboard, booking
-
-  useEffect(() => {
-    const savedUser = getUser();
-    if (savedUser) {
-      setUser(savedUser);
-      setPage('dashboard');
-    }
-  }, []);
-
-  const handleLogin = (loggedInUser) => {
-    setUser(loggedInUser);
-    setPage('dashboard');
-  };
-
-  const handleLogout = () => {
-    clearUser();
-    setUser(null);
-    setPage('home');
-  };
-
-  const handleNavigate = (newPage) => {
-    setPage(newPage);
-  };
-
-  const handleRegisterSuccess = () => {
-    setPage('loginCustomer');
-  };
-
+import { Routes, Route } from "react-router-dom";
+import Navbar from "./components/Navbar";
+import Home from "./pages/Home";
+import Login from "./pages/Login";
+import AdminDashboard from "./pages/AdminDashboard";
+import CustomerDashboard from "./pages/CustomerDashboard";
+import CustomerRegistration from "./pages/CustomerRegistration";
+import Services from "./pages/Services";
+import ProtectedRoute from "./components/ProtectedRoute";
+import CustomerList from "./pages/CustomerList";
+function App() {
   return (
-    <>
-      <Navbar user={user} onLogout={handleLogout} onNavigate={handleNavigate} />
+    <div>
+      <Navbar />
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/login" element={<Login />} />
+        <Route
+          path="/admin"
+          element={
+            <ProtectedRoute role="admin">
+              <AdminDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/customer"
+          element={
+            <ProtectedRoute role="customer">
+              <CustomerDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="/register" element={<CustomerRegistration />} />
+        <Route path="/services" element={<Services />} />
+        <Route path="/admin/customers" element={<CustomerList />} />
+        <Route path="/admin/services" element={<Services />} />
+        <Route path="/admin/products" element={<h1>Product Management (Coming Soon)</h1>} />
+        <Route path="/admin/staff" element={<h1>Staff Management (Coming Soon)</h1>} />
+        <Route path="/admin/appointments" element={<h1>Appointments / Bookings (Coming Soon)</h1>} />
 
-      <main className="min-h-screen bg-gray-100 p-4 max-w-4xl mx-auto">
-        {page === 'home' && (
-          <Home
-            onNavigateToCustomerLogin={() => setPage('loginCustomer')}
-            onNavigateToStaffLogin={() => setPage('loginStaff')}
-            onNavigateToBooking={() => setPage('booking')}
-            onNavigateToRegister={() => setPage('register')}
-          />
-        )}
-
-        {page === 'loginCustomer' && !user && (
-          <CustomerLogin onLogin={handleLogin} onBack={() => setPage('home')} />
-        )}
-
-        {page === 'loginStaff' && !user && (
-          <StaffLogin onLogin={handleLogin} onBack={() => setPage('home')} />
-        )}
-
-        {page === 'register' && !user && (
-          <RegisterCustomer
-            onRegisterSuccess={handleRegisterSuccess}
-            onCancel={() => setPage('home')}
-          />
-        )}
-
-        {page === 'dashboard' && user && (
-          user.role === 'admin' || user.role === 'staff'
-            ? <AdminDashboard />
-            : <BookingForm />
-        )}
-
-        {page === 'booking' && <BookingForm />}
-      </main>
-    </>
+      </Routes>
+    </div>
   );
 }
+
+export default App;
