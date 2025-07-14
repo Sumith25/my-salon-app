@@ -1,0 +1,13 @@
+// src/auth.js
+export const getUser = () => {
+  const user = localStorage.getItem('user');
+  return user ? JSON.parse(user) : null;
+};
+
+export const setUser = (user) => {
+  localStorage.setItem('user', JSON.stringify(user));
+};
+
+export const clearUser = () => {
+  localStorage.removeItem('user');
+};
