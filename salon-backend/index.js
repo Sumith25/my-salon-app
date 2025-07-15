@@ -123,10 +123,12 @@ app.delete("/api/appointments/:id", (req, res) => {
 });
 
 // ---------------- SERVE REACT BUILD ----------------
-app.use(express.static(path.join(__dirname, "../salon-frontend/dist"))); // or build/
+const frontendPath = path.resolve(process.cwd(), "salon-frontend", "dist");
+
+app.use(express.static(frontendPath));
 
 app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "../salon-frontend/dist/index.html")); // or build/index.html
+  res.sendFile(path.join(frontendPath, "index.html"));
 });
 
 // ---------------- START SERVER ----------------
