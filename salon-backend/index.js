@@ -123,7 +123,7 @@ app.delete("/api/appointments/:id", (req, res) => {
 });
 
 // ---------------- SERVE REACT BUILD ----------------
-const frontendPath = path.resolve(process.cwd(), "salon-frontend", "dist");
+const frontendPath = path.join(__dirname, "dist");
 
 app.use(express.static(frontendPath));
 
