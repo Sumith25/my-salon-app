@@ -2,13 +2,13 @@ import { useState } from "react";
 
 export default function CustomerRegistration() {
   const [formData, setFormData] = useState({
-  name: "",
-  email: "",
-  phone: "",
-  gender: "",
-  address: "",
-  password: "", // New field
-});
+    name: "",
+    email: "",
+    phone: "",
+    gender: "",
+    address: "",
+    password: "",
+  });
   const [status, setStatus] = useState("");
 
   const handleChange = (e) => {
@@ -28,7 +28,14 @@ export default function CustomerRegistration() {
 
       if (response.ok) {
         setStatus("Customer registered successfully!");
-        setFormData({ name: "", email: "", phone: "" });
+        setFormData({
+          name: "",
+          email: "",
+          phone: "",
+          gender: "",
+          address: "",
+          password: "",
+        });
       } else {
         setStatus("Failed to register customer.");
       }
@@ -46,7 +53,7 @@ export default function CustomerRegistration() {
           type="text"
           name="name"
           placeholder="Name"
-          value={formData.name}
+          value={formData.name || ""}
           onChange={handleChange}
           required
           className="w-full border p-2"
@@ -55,7 +62,7 @@ export default function CustomerRegistration() {
           type="email"
           name="email"
           placeholder="Email"
-          value={formData.email}
+          value={formData.email || ""}
           onChange={handleChange}
           required
           className="w-full border p-2"
@@ -64,16 +71,32 @@ export default function CustomerRegistration() {
           type="text"
           name="phone"
           placeholder="Phone"
-          value={formData.phone}
+          value={formData.phone || ""}
           onChange={handleChange}
           required
+          className="w-full border p-2"
+        />
+        <input
+          type="text"
+          name="gender"
+          placeholder="Gender"
+          value={formData.gender || ""}
+          onChange={handleChange}
+          className="w-full border p-2"
+        />
+        <input
+          type="text"
+          name="address"
+          placeholder="Address"
+          value={formData.address || ""}
+          onChange={handleChange}
           className="w-full border p-2"
         />
         <input
           type="password"
           name="password"
           placeholder="Password"
-          value={formData.password}
+          value={formData.password || ""}
           onChange={handleChange}
           required
           className="w-full border p-2"

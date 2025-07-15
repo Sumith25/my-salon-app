@@ -1,72 +1,65 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext"; // ✅ Use AuthContext
+import { useAuth } from "../context/AuthContext";
+import { loginAPI } from "../api/loginApi";
 
 export default function Login() {
-  const { login } = useAuth(); // ✅ This is important
   const navigate = useNavigate();
-  const [credentials, setCredentials] = useState({ username: "", password: "" });
+  const { login } = useAuth();
+  const [formData, setFormData] = useState({ username: "", password: "" });
   const [error, setError] = useState("");
 
   const handleChange = (e) => {
-    setCredentials({ ...credentials, [e.target.name]: e.target.value });
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
-
     try {
-      const response = await fetch("http://localhost:5000/api/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(credentials),
+      const data = await loginAPI(formData);
+      login({
+        username: data.name,
+        role: data.role,
+        customerId: data.customerId,
       });
 
-      if (!response.ok) {
-        throw new Error("Invalid username or password");
-      }
-
-      const data = await response.json();
-
       if (data.role === "admin") {
-        sessionStorage.setItem("role", "admin");
-        login({ username: credentials.username, role: "admin" }); // ✅ This triggers Navbar update
-        navigate("/admin");
+        navigate("/admin", { replace: true });
       } else if (data.role === "customer") {
-        sessionStorage.setItem("role", "customer");
-        login({ username: credentials.username, role: "customer" }); // ✅ This triggers Navbar update
-        navigate("/customer");
+        navigate("/customer", { replace: true });
       }
     } catch (err) {
+      console.error(err);
       setError(err.message);
     }
   };
 
   return (
-    <div className="flex flex-col items-center justify-center h-screen">
-      <h1 className="text-2xl font-semibold mb-4">Login Page</h1>
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4 w-80">
+    <div className="max-w-sm mx-auto mt-10">
+      <h1 className="text-3xl font-bold mb-6 text-center">Login</h1>
+      {error && <p className="text-red-500 text-center mb-4">{error}</p>}
+      <form onSubmit={handleSubmit} className="grid gap-4">
         <input
           type="text"
           name="username"
-          placeholder="Username"
-          value={credentials.username}
+          placeholder="Username / Email"
+          value={formData.username}
           onChange={handleChange}
           className="border p-2"
+          required
         />
         <input
           type="password"
           name="password"
           placeholder="Password"
-          value={credentials.password}
+          value={formData.password}
           onChange={handleChange}
           className="border p-2"
+          required
         />
-        <button type="submit" className="bg-blue-500 text-white py-2">
+        <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded">
           Login
         </button>
-        {error && <p className="text-red-600">{error}</p>}
       </form>
     </div>
   );

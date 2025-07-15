@@ -12,7 +12,12 @@ export default function Navbar() {
 
     return (
         <nav className="bg-gray-800 p-4 flex justify-between items-center">
-            <div className="text-white font-bold text-xl">My Salon App</div>
+            <div
+                className="text-white font-bold text-xl cursor-pointer"
+                onClick={() => navigate('/')}
+            >
+                My Salon App
+            </div>
             <div className="flex items-center space-x-4">
                 <Link to="/" className="text-white hover:text-gray-300">Home</Link>
                 <Link to="/services" className="text-white hover:text-gray-300">Services</Link>
@@ -24,15 +29,16 @@ export default function Navbar() {
                     </>
                 )}
 
-                {user && (
+                {user?.role === 'admin' && (
                     <>
-                        {user.role === 'admin' && (
-                            <Link to="/admin" className="text-white hover:text-gray-300">Admin Dashboard</Link>
-                        )}
-                        {user.role === 'customer' && (
-                            <Link to="/customer" className="text-white hover:text-gray-300">Customer Dashboard</Link>
-                        )}
-                        <span className="text-white">Welcome, {user.username}</span>
+                        <Link to="/admin" className="text-white hover:text-gray-300">Admin Dashboard</Link>
+                        <button onClick={handleLogout} className="text-white hover:text-gray-300">Logout</button>
+                    </>
+                )}
+
+                {user?.role === 'customer' && (
+                    <>
+                        <Link to="/customer" className="text-white hover:text-gray-300">Customer Dashboard</Link>
                         <button onClick={handleLogout} className="text-white hover:text-gray-300">Logout</button>
                     </>
                 )}
