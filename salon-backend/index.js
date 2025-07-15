@@ -1,9 +1,15 @@
 import express from "express";
 import cors from "cors";
+import path from "path";
+import { fileURLToPath } from "url";
 
 const app = express();
 app.use(cors());
 app.use(express.json());
+
+// For __dirname in ES Modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Dummy in-memory data
 const adminUser = { username: "admin", password: "password" };
@@ -19,12 +25,10 @@ let customers = [];
 let nextCustomerId = 1;
 let appointments = [];
 let nextAppointmentId = 1;
-let products = [];
-let nextProductId = 1;
-let staff = [];
-let nextStaffId = 1;
 
-// Login Route Start
+// ---------------- API ROUTES ----------------
+
+// Login Route
 app.post("/api/login", (req, res) => {
   const { username, password } = req.body;
 
@@ -44,26 +48,28 @@ app.post("/api/login", (req, res) => {
     return res.json({
       role: "customer",
       name: registeredCustomer.name,
-      customerId: registeredCustomer.id.toString(), // 🔴 This is IMPORTANT for filtering bookings
+      customerId: registeredCustomer.id,
     });
   }
 
   return res.status(401).json({ message: "Invalid credentials" });
 });
-// Login Route End
 
-// Customer Routes Start
+// Customers API
 app.post("/api/customers", (req, res) => {
   const customer = { id: nextCustomerId++, ...req.body };
   customers.push(customer);
   res.status(201).json({ message: "Customer registered", customer });
 });
 
+app.get("/api/customers", (req, res) => {
+  res.json(customers);
+});
+
 app.put("/api/customers/:id", (req, res) => {
   const id = parseInt(req.params.id);
   const index = customers.findIndex((c) => c.id === id);
   if (index === -1) return res.status(404).json({ message: "Customer not found" });
-
   customers[index] = { ...customers[index], ...req.body };
   res.json({ message: "Customer updated", customer: customers[index] });
 });
@@ -74,12 +80,7 @@ app.delete("/api/customers/:id", (req, res) => {
   res.json({ message: "Customer deleted" });
 });
 
-app.get("/api/customers", (req, res) => {
-  res.json(customers);
-});
-// Customer Routes End
-
-// Services Routes Start
+// Services API
 app.get("/api/services", (req, res) => {
   res.json(services);
 });
@@ -103,9 +104,8 @@ app.delete("/api/services/:id", (req, res) => {
   services = services.filter((s) => s.id !== id);
   res.json({ message: "Service deleted" });
 });
-// Services Routes End
 
-// Appointments Routes Start
+// Appointments API
 app.post("/api/appointments", (req, res) => {
   const appointment = { id: nextAppointmentId++, ...req.body };
   appointments.push(appointment);
@@ -121,62 +121,16 @@ app.delete("/api/appointments/:id", (req, res) => {
   appointments = appointments.filter((a) => a.id !== id);
   res.json({ message: "Appointment deleted" });
 });
-// Appointments Routes End
 
-// Products Routes Start
-app.get("/api/products", (req, res) => {
-  res.json(products);
+// ---------------- SERVE REACT BUILD ----------------
+app.use(express.static(path.join(__dirname, "../salon-frontend/dist"))); // or build/
+
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "../salon-frontend/dist/index.html")); // or build/index.html
 });
 
-app.post("/api/products", (req, res) => {
-  const product = { id: nextProductId++, ...req.body };
-  products.push(product);
-  res.status(201).json({ message: "Product added", product });
-});
-
-app.put("/api/products/:id", (req, res) => {
-  const id = parseInt(req.params.id);
-  const index = products.findIndex((p) => p.id === id);
-  if (index === -1) return res.status(404).json({ message: "Product not found" });
-
-  products[index] = { ...products[index], ...req.body };
-  res.json({ message: "Product updated", product: products[index] });
-});
-
-app.delete("/api/products/:id", (req, res) => {
-  const id = parseInt(req.params.id);
-  products = products.filter((p) => p.id !== id);
-  res.json({ message: "Product deleted" });
-});
-// Products Routes End
-
-// Staff Routes Start
-app.get("/api/staff", (req, res) => {
-  res.json(staff);
-});
-
-app.post("/api/staff", (req, res) => {
-  const member = { id: nextStaffId++, ...req.body };
-  staff.push(member);
-  res.status(201).json({ message: "Staff member added", member });
-});
-
-app.put("/api/staff/:id", (req, res) => {
-  const id = parseInt(req.params.id);
-  const index = staff.findIndex((s) => s.id === id);
-  if (index === -1) return res.status(404).json({ message: "Staff member not found" });
-
-  staff[index] = { ...staff[index], ...req.body };
-  res.json({ message: "Staff member updated", member: staff[index] });
-});
-
-app.delete("/api/staff/:id", (req, res) => {
-  const id = parseInt(req.params.id);
-  staff = staff.filter((s) => s.id !== id);
-  res.json({ message: "Staff member deleted" });
-});
-// Staff Routes End
-
-app.listen(5000, () => {
-  console.log("Backend running on http://localhost:5000");
+// ---------------- START SERVER ----------------
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`Backend running on http://localhost:${PORT}`);
 });
