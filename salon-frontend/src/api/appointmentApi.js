@@ -14,9 +14,16 @@ const handleResponse = async (response) => {
 };
 
 export const fetchAppointmentsAPI = async () => {
-  const response = await fetch(API_BASE);
-  return handleResponse(response);
+  try {
+    const response = await fetch(API_BASE);
+    const data = await handleResponse(response);
+    return Array.isArray(data) ? data : [];
+  } catch (error) {
+    console.error("Failed to fetch appointments:", error);
+    return [];
+  }
 };
+
 
 export const addAppointmentAPI = async (appointmentData) => {
   const response = await fetch(API_BASE, {
