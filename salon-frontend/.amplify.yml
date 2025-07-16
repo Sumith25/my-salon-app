@@ -1,0 +1,18 @@
+version: 1
+frontend:
+  phases:
+    preBuild:
+      commands:
+        - cd salon-frontend
+        - npm ci
+    build:
+      commands:
+        - cd salon-frontend
+        - npm run build
+  artifacts:
+    baseDirectory: salon-frontend/dist
+    files:
+      - '**/*'
+  cache:
+    paths:
+      - salon-frontend/node_modules/**/*
