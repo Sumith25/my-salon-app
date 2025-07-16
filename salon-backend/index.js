@@ -11,6 +11,15 @@ app.use(express.json());
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// ✅ Serve React build from correct path
+const frontendPath = path.join(__dirname, "dist");
+
+app.use(express.static(frontendPath));
+
+app.get("*", (req, res) => {
+  res.sendFile(path.join(frontendPath, "index.html"));
+});
+
 // Dummy in-memory data
 const adminUser = { username: "admin", password: "password" };
 const customerUser = { username: "customer", password: "password" };
@@ -122,16 +131,10 @@ app.delete("/api/appointments/:id", (req, res) => {
   res.json({ message: "Appointment deleted" });
 });
 
-// ---------------- SERVE REACT BUILD ----------------
-const frontendPath = path.join(__dirname, "dist");
 
-app.use(express.static(frontendPath));
+// ✅ Other APIs as you already wrote
+// (Keep your existing /api/customers, /api/appointments, etc.)
 
-app.get("*", (req, res) => {
-  res.sendFile(path.join(frontendPath, "index.html"));
-});
-
-// ---------------- START SERVER ----------------
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Backend running on http://localhost:${PORT}`);
